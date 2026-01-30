@@ -32,6 +32,9 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.*;
+
+import javax.swing.text.html.BlockView;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,7 +210,7 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
                 return null; 
             }else{
                 LOGGER.info("Accès autorisé pour {}, déblocage en cours.", player.getName().getString());
-                entry.isUnlocked(true);
+                entry.setUnlocked(true)
             }
 
             // Vérifications additionnelles (si vous en avez besoin)
