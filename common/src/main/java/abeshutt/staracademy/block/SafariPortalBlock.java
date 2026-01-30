@@ -210,7 +210,7 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
                 return null; 
             }else{
                 LOGGER.info("Accès autorisé pour {}, déblocage en cours.", player.getName().getString());
-                entry.setUnlocked(true)
+                entry.setUnlocked(true);
             }
 
             // Vérifications additionnelles (si vous en avez besoin)
