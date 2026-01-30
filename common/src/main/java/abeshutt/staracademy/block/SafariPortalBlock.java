@@ -33,10 +33,10 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.*;
 
-import javax.swing.text.html.BlockView;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class SafariPortalBlock extends Block implements BlockEntityProvider, Portal {
     public static final Logger LOGGER = LoggerFactory.getLogger("nom-du-mod");
