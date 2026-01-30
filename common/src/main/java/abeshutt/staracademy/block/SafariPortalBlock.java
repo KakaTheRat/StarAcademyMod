@@ -153,8 +153,14 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
 
         SafariData data = ModWorldData.SAFARI.getGlobal(world);
 
+        // CAS 1 : SORTIE du Safari (On enregistre l'heure ici)
         if(world.getRegistryKey() == StarAcademyMod.SAFARI) {
             SafariData.Entry entry = data.get(player.getUuid()).orElse(null);
+
+            if(entry != null) {
+                // Sauvegarde du moment exact de la sortie (System.currentTimeMillis() est en ms)
+                entry.setLastVisitTime(System.currentTimeMillis());
+            }
 
             if(entry == null || entry.getLastState() == null) {
                 return null;
@@ -172,26 +178,46 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
 
             return new TeleportTarget(destination, state.getPos(), Vec3d.ZERO,
                     state.getYaw(), state.getPitch(), post -> {});
+
+        // CAS 2 : ENTRÉE dans le Safari (On vérifie le cooldown ici)
         } else {
             SafariData.Entry entry = data.getOrCreate(player.getUuid());
 
-            if(!entry.isUnlocked()) {
+            // --- CALCUL DU TEMPS RESTANT ---
+            long now = System.currentTimeMillis();
+            long cooldownMillis = 12L * 60L * 60L * 1000L; // 12 heures en millisecondes
+            long nextVisitAllowed = entry.getLastVisitTime() + cooldownMillis;
+
+            if (now < nextVisitAllowed) {
+                long timeLeft = nextVisitAllowed - now;
+                
+                // Conversion en heures et minutes pour le message
+                long hours = timeLeft / (1000 * 60 * 60);
+                long minutes = (timeLeft / (1000 * 60)) % 60;
+
+                // Message personnalisé avec le temps restant
                 player.sendMessage(Text.empty()
-                        .append(Text.translatable("text.academy.safari.enter_locked")
-                                .formatted(Formatting.RED)), true);
+                    .append(Text.literal("Accès refusé ! ").formatted(Formatting.RED))
+                    .append(Text.literal("Vous devez encore attendre ").formatted(Formatting.GRAY))
+                    .append(Text.literal(hours + "h " + minutes + "min").formatted(Formatting.YELLOW))
+                    .append(Text.literal(" avant votre prochaine expédition.").formatted(Formatting.GRAY)), true);
+                
+                return null; // Annule la téléportation
+            }
+
+            // Vérifications additionnelles (si vous en avez besoin)
+            if(!entry.isUnlocked()) {
+                player.sendMessage(Text.translatable("text.academy.safari.enter_locked").formatted(Formatting.RED), true);
                 return null;
             } else if(entry.getTimeLeft() <= 0) {
-                player.sendMessage(Text.empty()
-                        .append(Text.translatable("text.academy.safari.enter_no_time")
-                                .formatted(Formatting.RED)), true);
+                player.sendMessage(Text.translatable("text.academy.safari.enter_no_time").formatted(Formatting.RED), true);
                 return null;
             } else if(data.isPaused()) {
-                player.sendMessage(Text.empty()
-                        .append(Text.translatable("text.academy.safari.enter_paused")
-                                .formatted(Formatting.RED)), true);
+                player.sendMessage(Text.translatable("text.academy.safari.enter_paused").formatted(Formatting.RED), true);
                 return null;
             }
 
+            // Procédure normale d'entrée
             data.getOrCreate(player.getUuid()).setLastState(new EntityState(player));
             BlockPos target = ModConfigs.SAFARI.getPlacementOffset().add(ModConfigs.SAFARI.getRelativeSpawnPosition());
             ServerWorld destination = world.getServer().getWorld(StarAcademyMod.SAFARI);

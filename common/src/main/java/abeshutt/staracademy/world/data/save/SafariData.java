@@ -363,6 +363,11 @@ public class SafariData extends WorldData {
         private BlockPos nearestPortal;
         protected boolean prompted;
         protected boolean unlocked;
+        // Ajouts de kaka
+        private long lastVisitTime;
+
+        public long getLastVisitTime() { return this.lastVisitTime; }
+        public void setLastVisitTime(long lastVisitTime) { this.lastVisitTime = lastVisitTime; }
 
         public EntityState getLastState() {
             return this.lastState;
@@ -425,6 +430,10 @@ public class SafariData extends WorldData {
             Adapters.BLOCK_POS.asNullable().writeBits(this.nearestPortal, buffer);
             Adapters.BOOLEAN.writeBits(this.unlocked, buffer);
             Adapters.BOOLEAN.writeBits(this.prompted, buffer);
+
+            // Ajouts de kaka
+            Adapters.BOOLEAN.writeBits(this.prompted, buffer);
+            Adapters.LONG.writeBits(this.lastVisitTime, buffer);
         }
 
         @Override
@@ -441,6 +450,11 @@ public class SafariData extends WorldData {
             this.nearestPortal = Adapters.BLOCK_POS.asNullable().readBits(buffer).orElse(null);
             this.unlocked = Adapters.BOOLEAN.readBits(buffer).orElseThrow();
             this.prompted = Adapters.BOOLEAN.readBits(buffer).orElseThrow();
+
+            
+            //ajoutes de kaka
+            this.prompted = Adapters.BOOLEAN.readBits(buffer).orElseThrow();
+            this.lastVisitTime = Adapters.LONG.readBits(buffer).orElse(0L);
         }
 
         @Override
@@ -455,6 +469,8 @@ public class SafariData extends WorldData {
                 Adapters.BLOCK_POS.writeNbt(this.nearestPortal).ifPresent(tag -> nbt.put("nearestPortal", tag));
                 Adapters.BOOLEAN.writeNbt(this.unlocked).ifPresent(tag -> nbt.put("unlocked", tag));
                 Adapters.BOOLEAN.writeNbt(this.prompted).ifPresent(tag -> nbt.put("prompted", tag));
+                // ajouts de kaka (pas le return)
+                Adapters.LONG.writeNbt(this.lastVisitTime).ifPresent(tag -> nbt.put("lastVisitTime", tag));
                 return nbt;
             });
         }
@@ -473,6 +489,7 @@ public class SafariData extends WorldData {
             this.nearestPortal = Adapters.BLOCK_POS.readNbt(nbt.get("nearestPortal")).orElse(null);
             this.unlocked = Adapters.BOOLEAN.readNbt(nbt.get("unlocked")).orElse(false);
             this.prompted = Adapters.BOOLEAN.readNbt(nbt.get("unlocked")).orElse(false);
+            this.lastVisitTime = Adapters.LONG.readNbt(nbt.get("lastVisitTime")).orElse(0L);
         }
     }
 
