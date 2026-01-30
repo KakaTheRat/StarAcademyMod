@@ -229,29 +229,9 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
             data.getOrCreate(player.getUuid()).setLastState(new EntityState(player));
             BlockPos target = ModConfigs.SAFARI.getPlacementOffset().add(ModConfigs.SAFARI.getRelativeSpawnPosition());
             ServerWorld destination = world.getServer().getWorld(StarAcademyMod.SAFARI);
-            if (destination == null) {
-                // Loggez une erreur ou renvoyez le joueur au spawn par sécurité
-                return null; 
-            }
 
-            BlockPos target = ModConfigs.SAFARI.getPlacementOffset().add(ModConfigs.SAFARI.getRelativeSpawnPosition());
-
-            // FORCE le chargement du chunk pour éviter que le joueur tombe dans le vide
-            destination.getChunkManager().addTicket(ChunkTicketType.POST_TELEPORT, new ChunkPos(target), 1, player.getId());
-
-            // Enregistrement de l'état pour le retour
-            data.getOrCreate(player.getUuid()).setLastState(new EntityState(player));
-
-            return new TeleportTarget(
-                destination, 
-                new Vec3d(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D), 
-                Vec3d.ZERO,
-                ModConfigs.SAFARI.getSpawnYaw(), 
-                ModConfigs.SAFARI.getSpawnPitch(), 
-                post -> {
-                    // Optionnel : donner un effet de résistance au joueur pendant 5s pour charger les textures
-                }
-            );
+            return new TeleportTarget(destination, new Vec3d(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D), Vec3d.ZERO,
+                    ModConfigs.SAFARI.getSpawnYaw(), ModConfigs.SAFARI.getSpawnPitch(), post -> {});
         }
     }
 
