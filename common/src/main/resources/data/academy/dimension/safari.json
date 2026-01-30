@@ -1,17 +1,6 @@
 {
-  "type": "minecraft:overworld",
+  "type": "academy:safari",
   "generator": {
-    "type": "academy:island",
-    "settings": {
-      "biome": "minecraft:the_void",
-      "lakes": false,
-      "features": false,
-      "layers": [
-        {
-          "height": 1,
-          "block": "minecraft:mossy_cobblestone"
-        }
-      ]
-    }
+    "type": "academy:safari"
   }
 }
