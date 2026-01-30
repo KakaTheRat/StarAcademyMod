@@ -32,9 +32,11 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SafariPortalBlock extends Block implements BlockEntityProvider, Portal {
-
+    public static final Logger LOGGER = LoggerFactory.getLogger("nom-du-mod");
     public static final EnumProperty<Direction.Axis> AXIS = Properties.HORIZONTAL_AXIS;
     protected static final VoxelShape X_SHAPE = Block.createCuboidShape(0.0, 0.0, 6.0, 16.0, 16.0, 10.0);
     protected static final VoxelShape Z_SHAPE = Block.createCuboidShape(6.0, 0.0, 0.0, 10.0, 16.0, 16.0);
@@ -182,15 +184,15 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
         // CAS 2 : ENTRÉE dans le Safari (On vérifie le cooldown ici)
         } else {
             SafariData.Entry entry = data.getOrCreate(player.getUuid());
-
+            LOGGER.info("Début check safari pour: " + player.getName().getString());
             // --- CALCUL DU TEMPS RESTANT ---
             long now = System.currentTimeMillis();
             long cooldownMillis = 12L * 60L * 60L * 1000L; // 12 heures en millisecondes
             long nextVisitAllowed = entry.getLastVisitTime() + cooldownMillis;
-
+            LOGGER.info("Maintenant: {}, Prochaine visite: {}", now, nextVisitAllowed);
             if (now < nextVisitAllowed) {
                 long timeLeft = nextVisitAllowed - now;
-                
+                LOGGER.warn("Accès refusé pour {} - Cooldown actif", player.getName().getString());
                 // Conversion en heures et minutes pour le message
                 long hours = timeLeft / (1000 * 60 * 60);
                 long minutes = (timeLeft / (1000 * 60)) % 60;
@@ -202,7 +204,10 @@ public class SafariPortalBlock extends Block implements BlockEntityProvider, Por
                     .append(Text.literal(hours + "h " + minutes + "min").formatted(Formatting.YELLOW))
                     .append(Text.literal(" avant votre prochaine expédition.").formatted(Formatting.GRAY)), true);
                 
-                return null; // Annule la téléportation
+                return null; 
+            }else{
+                LOGGER.info("Accès autorisé pour {}, déblocage en cours.", player.getName().getString());
+                entry.isUnlocked(true);
             }
 
             // Vérifications additionnelles (si vous en avez besoin)
